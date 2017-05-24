@@ -6,4 +6,4 @@ if [ ! -d "./synths" ]; then
     mkdir synths
 fi
 lumo=$(which lumo)
-$lumo --init rvn.cljs --quiet --repl 
+$lumo --init raven.cljs --quiet --repl 
