@@ -54,21 +54,24 @@
              :args [{:type "string"
                      :value (str (.cwd process) "/synths/")}]}))
 
-(defn replace-newline [data]
-  (clojure.string.replace data #"\r\n|\n|\r" ""))
-
-(defn replace-deffile [data]
-  (clojure.string.replace data #"writeDefFile" (str "writeDefFile(\""
-                                                    (.cwd process)
-                                                    "/synths/\")")))
-
 (defn compile []
-  (.readFile
-   fs "synthDefs.scd" "utf8"
-   (fn [err data]
-     (let [synthdefs (-> (replace-newline data)
-                         (replace-deffile))]
-       (child-process.exec (str "echo '" synthdefs "' | sclang"))))))
+  (let [replace-newline #(clojure.string.replace % #"\r\n|\n|\r" "")
+        writedef-str (str "writeDefFile(\"" (.cwd process) "/synths/\")")
+        replace-deffile #(clojure.string.replace % #"writeDefFile" writedef-str)]
+    (.readFile
+     fs "synthDefs.scd" "utf8"
+     (fn [err data]
+       (when (not err)
+         (let [synthdefs (-> (replace-newline data)
+                             (replace-deffile))]
+           (child-process.exec (str "echo '" synthdefs "' | sclang"))))))))
 
+(defn dir-check []
+  (let [dir-path (str (.cwd process) "/synths/")
+        mkdir-err #(when % (throw (js/Error. "IO Error: Unable to create directory")))
+        access-err #(when % (.mkdir fs dir-path mkdir-err))]
+    (.access fs dir-path fs.constants.F_OK access-err)))
+
+(dir-check)
 (compile)
 (load-defs)
