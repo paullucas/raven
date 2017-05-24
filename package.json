@@ -1,0 +1,8 @@
+{
+  "name": "rvn",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "osc-msg": "^0.4.0"
+  }
+}
