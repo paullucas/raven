@@ -20,14 +20,23 @@
                     {:type "integer" :value 0}]})
   "Building a nest on a distant power line...")
 
-(defn lay [synthdef]
+(defn find-type [val]
+  (cond
+    (integer? val) {:type "integer" :value val}
+    (float? val) {:type "float" :value val}
+    (string? val) {:type "string" :value val}
+    :else {:type "integer" :value 0}))
+
+(defn lay [synthdef & args]
   (swap! current-node inc)
   (send-msg {:address "/s_new"
-             :args [{:type "string" :value synthdef}
-                    {:type "integer" :value @current-node}
-                    {:type "integer" :value 1}
-                    {:type "integer" :value 1}]})
-  "An egg is hatching...")
+             :args (into [{:type "string" :value synthdef}
+                          {:type "integer" :value @current-node}
+                          {:type "integer" :value 1}
+                          {:type "integer" :value 1}]
+                         (mapv find-type args))})
+  (println "An egg is hatching...")
+  @current-node)
 
 (defn croak [node k v]
   (send-msg {:address "/n_set"
@@ -74,6 +83,10 @@
                              (replace-deffile))]
            (child-process.exec (str "echo '" synthdefs "' | sclang"))))))))
 
+(defn reload-defs []
+  (compile)
+  (load-defs))
+
 (defn dir-check []
   (let [dir-path (str (.cwd process) "/synths/")
         mkdir-err #(when % (throw (js/Error. "IO Error: Unable to create directory")))
@@ -81,5 +94,4 @@
     (.access fs dir-path fs.constants.F_OK access-err)))
 
 (dir-check)
-(compile)
-(load-defs)
+(reload-defs)
