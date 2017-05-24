@@ -4,8 +4,10 @@
 (def child-process (nodejs/require "child_process"))
 (def dgram (nodejs/require "dgram"))
 (def oscmsg (nodejs/require "osc-msg"))
+
 (def socket (.createSocket dgram "udp4"))
 (def current-node (atom 2))
+(def current-buffer (atom 0))
 
 (defn send-msg [msg]
   (let [buf (.encode oscmsg (clj->js msg))]
@@ -38,6 +40,14 @@
   (send-msg {:address "/n_free"
              :args [{:type "integer" :value 1}]})
   "Abandoning nest...")
+
+(defn load-buf [path]
+  (swap! current-buffer inc)
+  (send-msg {:address "/b_allocRead"
+             :args [{:type "integer" :value @current-buffer}
+                    {:type "string" :value path}
+                    {:type "integer" :value 0}
+                    {:type "integer" :value 0}]}))
 
 (defn load-defs []
   (send-msg {:address "/d_loadDir"
