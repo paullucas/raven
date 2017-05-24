@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Raven</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+      hr {
+        margin-bottom: 10px;
+      }
+      img {
+        border-radius: 75px;
+      }
+      .about {
+        float: left;
+      }
+      .logo {
+        margin-top: 25px;
+        float: right;
+      }
+      .row {
+        margin-left: 0;
+        margin-right: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo col-md-6 col-sm-12">
+        <img class="col-md-12 col-sm-6" src="./rvn.png" />
+      </div>
+      <div class="about col-md-6 col-sm-12">
+        <h1 class="header">raven</h1>
+        <h4>A minimal &amp; opinionated SuperCollider client</h4>
+        <hr/>
+        <div class="row">
+          <h4>Start REPL </h4>
+          <code>./start.sh</code>
+        </div>
+        <div class="row">
+          <h4>Build a nest </h4>
+          <code>(nest)</code>
+        </div>
+        <div class="row">
+          <h4>Lay an egg </h4>
+          <code>(def child (lay "test"))</code>
+        </div>
+        <div class="row">
+          <h4>Croak </h4>
+          <code>(croak child "freq" 120)</code>
+        </div>
+        <div class="row">
+          <h4>Abandon nest </h4>
+          <code>(fly)</code>
+        </div>
+        <hr/>
+        <div class="row">
+          <h4>Install Dependencies</h4>
+          <pre>npm install -g lumo-cljs<br>npm install</pre>
+        </div>
+        <h4>Prerequisites</h4>
+        <a href="https://nodejs.org/">Node.js</a><br>
+        <a href="https://supercollider.github.io/">SuperCollider</a>
+      </div>
+    </div>
+  </body>
+</html>
