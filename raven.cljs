@@ -49,6 +49,14 @@
                     {:type "integer" :value 0}
                     {:type "integer" :value 0}]}))
 
+(defn samples [dir]
+  (.readdir
+   fs dir
+   (fn [err files]
+     (if err
+       (println "IO Error: Unable to find directory")
+       (doall (map #(load-buf %) files))))))
+
 (defn load-defs []
   (send-msg {:address "/d_loadDir"
              :args [{:type "string"
