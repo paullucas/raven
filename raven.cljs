@@ -25,10 +25,13 @@
              (.writeFile fs current-session-path state io-error)))
 
 (defn json->clj [data]
-  (js->clj (.parse js/JSON data) :keywordize-keys true))
+  (-> (.parse js/JSON data)
+      (js->clj :keywordize-keys true)))
 
 (defn clj->json [data]
-  (.stringify js/JSON (clj->js data)))
+  (->> data
+       clj->js
+       (.stringify js/JSON)))
 
 (defn store-event
   "Append timestamp to event & conj to current-session atom"
@@ -91,6 +94,7 @@
   (store-event {:type "fly"})
   (send-msg {:address "/n_free"
              :args [{:type "integer" :value 1}]})
+  (swap! current-node #(-> 2))
   "Abandoning nest...")
 
 (defn load-buf
@@ -130,8 +134,9 @@
      fs "synthDefs.scd" "utf8"
      (fn [err data]
        (when (not err)
-         (let [synthdefs (-> (replace-newline data)
-                             (replace-deffile))]
+         (let [synthdefs (->> data
+                              replace-newline
+                              replace-deffile)]
            (child-process.exec (str "echo '" synthdefs "' | sclang"))))))))
 
 (defn reload-defs
