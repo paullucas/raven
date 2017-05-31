@@ -8,6 +8,7 @@
 (def socket (.createSocket dgram "udp4"))
 (def current-node (atom 2))
 (def current-buffer (atom 0))
+
 (defn timestamp []
   (.toISOString (new js/Date)))
 
@@ -29,7 +30,9 @@
 (defn clj->json [data]
   (.stringify js/JSON (clj->js data)))
 
-(defn store-event [event]
+(defn store-event
+  "Append timestamp to event & conj to current-session atom"
+  [event]
   (->> (conj event {:timestamp (timestamp)})
        (swap! current-session conj)))
 
@@ -145,7 +148,9 @@
         access-err #(when % (.mkdir fs dir-path mkdir-err))]
     (.access fs dir-path fs.constants.F_OK access-err)))
 
-(defn session-check []
+(defn session-check
+  "If session file doesn't exist, create it"
+  []
   (try (.accessSync fs current-session-path fs.constants.F_OK)
        (catch :default err (.appendFileSync fs current-session-path "[]"))))
 
