@@ -8,6 +8,30 @@
 (def socket (.createSocket dgram "udp4"))
 (def current-node (atom 2))
 (def current-buffer (atom 0))
+(defn timestamp []
+  (.toISOString (new js/Date)))
+
+(defn io-error [err]
+  (when err
+    (println "IO Error")))
+
+(def current-session-path (str (.cwd process) "/events/session" (timestamp) ".json"))
+(def current-session (atom []))
+
+(add-watch current-session
+           :fs-sync
+           (fn [_ _ _ state]
+             (.writeFile fs current-session-path state io-error)))
+
+(defn json->clj [data]
+  (js->clj (.parse js/JSON data) :keywordize-keys true))
+
+(defn clj->json [data]
+  (.stringify js/JSON (clj->js data)))
+
+(defn store-event [event]
+  (->> (conj event {:timestamp (timestamp)})
+       (swap! current-session conj)))
 
 (defn send-msg
   "Encode OSC message & send to SCSynth"
@@ -18,6 +42,7 @@
 (defn nest
   "Create group on node 1"
   []
+  (store-event {:type "nest"})
   (send-msg {:address "/g_new"
              :args [{:type "integer" :value 1}
                     {:type "integer" :value 1}
@@ -37,6 +62,7 @@
   "Create a new synth"
   [synthdef & args]
   (swap! current-node inc)
+  (store-event {:type "lay"})
   (send-msg {:address "/s_new"
              :args (into [{:type "string" :value synthdef}
                           {:type "integer" :value @current-node}
@@ -49,6 +75,7 @@
 (defn croak
   "Set a node's control value"
   [node k v]
+  (store-event {:type "croak"})
   (send-msg {:address "/n_set"
              :args [{:type "integer" :value node}
                     {:type "string" :value k}
@@ -58,6 +85,7 @@
 (defn fly
   "Free node 1"
   []
+  (store-event {:type "fly"})
   (send-msg {:address "/n_free"
              :args [{:type "integer" :value 1}]})
   "Abandoning nest...")
@@ -80,7 +108,7 @@
    (fn [err files]
      (if err
        (println "IO Error: Unable to find directory")
-       (doall (map #(load-buf %) files))))))
+       (doall (map load-buf files))))))
 
 (defn load-defs
   "Load a directory of synth definitions"
@@ -117,5 +145,10 @@
         access-err #(when % (.mkdir fs dir-path mkdir-err))]
     (.access fs dir-path fs.constants.F_OK access-err)))
 
+(defn session-check []
+  (try (.accessSync fs current-session-path fs.constants.F_OK)
+       (catch :default err (.appendFileSync fs current-session-path "[]"))))
+
 (dir-check)
 (reload-defs)
+(session-check)
