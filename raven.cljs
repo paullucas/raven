@@ -79,23 +79,43 @@
     :else {:type "integer" :value 0}))
 
 
-(let [lay-fn (fn [synthdef & args]
-               (swap! current-node inc)
-               (store-event {:type "lay"
-                             :synthdef synthdef
-                             :args args})
-               (send-msg {:address "/s_new"
-                          :args (into [{:type "string" :value synthdef}
-                                       {:type "integer" :value @current-node}
-                                       {:type "integer" :value 1}
-                                       {:type "integer" :value 1}]
-                                      (mapv find-type args))})
-               (println "An egg is hatching...")
-               @current-node)]
-  (defn lay
-    "Create a new synth"
-    ([synthdef args] (lay-fn synthdef args))
-    ([synthdef & args] (lay-fn synthdef args))))
+(defn lay-internal-fn
+  [synthdef & args]
+  (swap! current-node inc)
+  (store-event {:type "lay"
+                :synthdef synthdef
+                :args args
+                :node @current-node})
+  (send-msg {:address "/s_new"
+             :args (into [{:type "string" :value synthdef}
+                          {:type "integer" :value @current-node}
+                          {:type "integer" :value 1}
+                          {:type "integer" :value 1}]
+                         (mapv find-type args))})
+  (println "An egg is hatching...")
+  @current-node)
+
+(defn lay-external-fn
+  [synthdef node & args]
+  (swap! current-node + node)
+  (store-event {:type "lay"
+                :synthdef synthdef
+                :args args
+                :node @current-node})
+  (send-msg {:address "/s_new"
+             :args (into [{:type "string" :value synthdef}
+                          {:type "integer" :value @current-node}
+                          {:type "integer" :value 1}
+                          {:type "integer" :value 1}]
+                         (mapv find-type args))})
+  (println "An egg is hatching...")
+  @current-node)
+
+
+(defn lay
+  "Create a new synth"
+  ([synthdef node args] (lay-external-fn synthdef node args))
+  ([synthdef & args] (lay-internal-fn synthdef args)))
 
 
 (defn croak
@@ -192,7 +212,7 @@
 
 (defn on-external-event [data]
   (case (:type data)
-    "lay" (lay (:synthdef data) (:args data))
+    "lay" (lay (:synthdef data) (:node data) (:args data))
     "croak" (croak (:node data) (:key data) (:value data))
     :else nil))
 
@@ -208,4 +228,4 @@
 (dir-check)
 (reload-defs)
 (session-check)
-(join-conspiracy "localhost" 3000)
+;; (join-conspiracy "localhost" 3000)
