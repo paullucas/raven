@@ -172,7 +172,7 @@
   (load-defs))
 
 
-(defn dir-check
+(defn synths-dir-check
   "If synths directory doesn't exist, create it"
   []
   (let [dir-path (str (.cwd process) "/synths/")
@@ -180,13 +180,22 @@
     (.access fs dir-path fs.constants.F_OK access-err)))
 
 
-(defn session-check
-  "If session file doesn't exist, create it"
+(defn events-dir-check
+  "If events directory doesn't exist, create it"
   []
-  (try (.accessSync fs current-session-path fs.constants.F_OK)
-       (catch :default err (.appendFileSync fs current-session-path "[]"))))
+  (let [dir-path (str (.cwd process) "/events/")
+        access-err #(when % (.mkdir fs dir-path io-error))]
+    (.access fs dir-path fs.constants.F_OK access-err)))
+
+;; WIP
+;; (defn session-check
+;;   "If session file doesn't exist, create it"
+;;   []
+;;   (try (.accessSync fs current-session-path fs.constants.F_OK)
+;;        (catch :default err (.appendFileSync fs current-session-path "[]"))))
 
 
-(dir-check)
+(synths-dir-check)
+(events-dir-check)
+(add-session-watch)
 (reload-defs)
-(session-check)

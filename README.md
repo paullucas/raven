@@ -3,13 +3,13 @@ A minimal &amp; opinionated SuperCollider client
 
 ### Quick Start
 
-Start REPL
-<br/>
-```npm start```
-
 Start SCSynth
 <br/>
 ```scsynth -u 57110```
+
+Start REPL
+<br/>
+```npm start```
 
 Build a nest
 <br/>
