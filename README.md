@@ -7,6 +7,10 @@ Start REPL
 <br/>
 ```npm start```
 
+Start SCSynth
+<br/>
+```scsynth -u 57110```
+
 Build a nest
 <br/>
 ```(nest)```
@@ -28,6 +32,7 @@ Abandon nest
 ```
 npm install -g lumo-cljs
 npm install
+mkdir events
 ```
 
 ### Prerequisites
