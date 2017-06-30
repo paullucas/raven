@@ -32,7 +32,6 @@ Abandon nest
 ```
 npm install -g lumo-cljs
 npm install
-mkdir events
 ```
 
 ### Prerequisites
