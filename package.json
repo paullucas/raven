@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "lumo --init raven.cljs --quiet --repl"
+    "start": "./raven.sh"
   },
   "dependencies": {
     "osc-msg": "^0.4.0"

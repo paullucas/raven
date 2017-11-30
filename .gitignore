@@ -1,3 +1,5 @@
 synths
 node_modules
 events
+.lumo_cache
+*~
